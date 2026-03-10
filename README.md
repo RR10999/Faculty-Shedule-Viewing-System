@@ -59,11 +59,3 @@ UI Resources:
 - Google Fonts (DM Sans)
 
 ---
-
-# Installation Guide
-
-## 1. Clone the Repository
-
-```bash
-git clone https://github.com/RR10999/Faculty-Shedule-Viewing-System.git
-cd Faculty-Shedule-Viewing-System
