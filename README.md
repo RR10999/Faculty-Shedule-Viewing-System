@@ -1,89 +1,69 @@
-# Faculty Schedule Monitoring System
+# Faculty Schedule Viewing System
 
-A Flask + MySQL web application for SRM IST to monitor faculty availability.
+A web-based application that allows students and staff to view real-time faculty availability based on timetable data.
 
-## Quick Start
-
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-> On Ubuntu/Linux: `pip install -r requirements.txt --break-system-packages`
-
-### 2. Set Up MySQL Database
-Make sure MySQL is running, then edit `setup_db.py` with your MySQL password and run:
-```bash
-python setup_db.py
-```
-
-### 3. Configure the App
-Edit `app.py` and update the MySQL credentials:
-```python
-app.config['MYSQL_PASSWORD'] = 'your_mysql_password'
-```
-
-### 4. Run the App
-```bash
-python app.py
-```
-Visit: http://localhost:5000
+Developed for SRM IST, the system provides an easy way to check whether a faculty member is **Free, Busy, In Class, or On Leave**, helping students find available faculty without unnecessary waiting.
 
 ---
 
-## Login Credentials (after setup_db.py)
+# Features
 
-| Role    | Email                            | Password    |
-|---------|----------------------------------|-------------|
-| Admin   | admin@srm.edu.in                 | admin123    |
-| Faculty | raman@srm.edu.in                 | faculty123  |
-| Faculty | meera@srm.edu.in                 | faculty123  |
-| Student | ra2311030010174@srm.edu.in       | student123  |
-
----
-
-## Features
-
-### Student View
-- Browse faculty directory (alphabetical order)
+## Student Portal
+- Browse faculty directory
 - Search by name, department, or cabin
-- Filter by status (Free / Busy / In Class / On Leave)
-- View full weekly timetable for any faculty member
+- View faculty availability status
+- Check complete weekly timetable
 
-### Faculty View
-- Update own status: Free / Busy / On Leave (with optional comment)
-- Reset to automatic (timetable-based) status
-- View own timetable
+## Faculty Portal
+- Update status (Free / Busy / On Leave)
+- Optional status comments
+- Reset status to automatic timetable mode
+- View personal timetable
 - Browse other faculty schedules
 
-### Admin View
+## Admin Portal
 - Add / Edit / Delete faculty members
-- Manage timetables (12 slots × 5 days per faculty)
-- Live status overview with stats
+- Manage faculty timetables
+- Monitor live availability statistics
+- Administrative control panel
 
-## Status Priority Logic
+---
+
+# Status Priority Logic
+
+Faculty availability is determined using the following priority:
+
 1. **On Leave** (highest priority)
-2. **Manual override** (Free/Busy set by faculty)
-3. **Timetable-based automatic** (checks current time slot)
+2. **Manual override** set by faculty
+3. **Automatic timetable status**
 
-## Time Slots (as per SRM timetable)
-| Slot | Time           |
-|------|----------------|
-| 1    | 08:00 – 08:50  |
-| 2    | 08:50 – 09:40  |
-| 3    | 09:45 – 10:35  |
-| 4    | 10:40 – 11:30  |
-| 5    | 11:35 – 12:25  |
-| 6    | 12:30 – 01:20  |
-| 7    | 01:25 – 02:15  |
-| 8    | 02:20 – 03:10  |
-| 9    | 03:10 – 04:00  |
-| 10   | 04:00 – 04:50  |
-| 11   | 04:50 – 05:30  |
-| 12   | 05:30 – 06:10  |
+This ensures manual updates always override the timetable.
 
-## Tech Stack
-- **Backend:** Flask (Python)
-- **Database:** MySQL (via Flask-MySQLdb)
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript
-- **Icons:** Font Awesome 6
-- **Fonts:** DM Sans (Google Fonts)
+---
+
+# Technology Stack
+
+Backend:
+- Python (Flask)
+
+Database:
+- MySQL (Flask-MySQLdb)
+
+Frontend:
+- HTML5
+- CSS3
+- JavaScript
+
+UI Resources:
+- Font Awesome
+- Google Fonts (DM Sans)
+
+---
+
+# Installation Guide
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/RR10999/Faculty-Shedule-Viewing-System.git
+cd Faculty-Shedule-Viewing-System
