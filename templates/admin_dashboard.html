@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>Admin Dashboard</h1>
+    <div class="subtitle">Manage faculty, timetables, and system data</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div class="date-badge">
+      <div style="font-size:.9rem;font-weight:700">{{ now.strftime("%A") }}</div>
+      <div style="font-size:.78rem;opacity:.85">{{ now.strftime("%B %d, %Y") }}</div>
+      <div style="font-size:.8rem;opacity:.9;margin-top:.15rem"><i class="fa fa-clock"></i> {{ now.strftime("%I:%M %p") }}</div>
+    </div>
+    <a href="{{ url_for('add_faculty') }}" class="btn btn-primary" style="background:white;color:var(--blue)">
+      <i class="fa fa-plus"></i> Add Faculty
+    </a>
+  </div>
+</div>
+
+<div class="page">
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number">{{ faculties|length }}</div>
+      <div class="stat-label">Total Faculty</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ student_count }}</div>
+      <div class="stat-label">Total Students</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ faculties|selectattr('effective_status','equalto','Free')|list|length }}</div>
+      <div class="stat-label" style="color:var(--green)">Currently Free</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--red)">{{ faculties|selectattr('effective_status','equalto','In Class')|list|length }}</div>
+      <div class="stat-label">In Class</div>
+    </div>
+  </div>
+
+  <!-- Faculty Table -->
+  <div class="table-wrap">
+    <div style="padding:1rem 1.2rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+      <div style="font-weight:700;font-size:.95rem">Faculty Members</div>
+      <div class="search-wrap" style="max-width:280px">
+        <i class="fa fa-magnifying-glass search-icon"></i>
+        <input class="search-input" id="adminSearch" placeholder="Search…">
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="adminTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Designation & Dept</th>
+            <th>Cabin</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in faculties %}
+          <tr data-name="{{ f.name|lower }}">
+            <td style="color:var(--gray-400);font-size:.8rem">{{ loop.index }}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:.7rem">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);font-size:.82rem;flex-shrink:0">
+                  {{ f.name[0].upper() }}
+                </div>
+                <span style="font-weight:600">{{ f.name }}</span>
+              </div>
+            </td>
+            <td>
+              <div style="font-size:.85rem;font-weight:500;color:var(--gray-700)">{{ f.designation or 'Asst. Professor' }}</div>
+              <div style="font-size:.75rem;color:var(--gray-400)">Dept. of {{ f.dept_short or 'CSE' }}</div>
+            </td>
+            <td style="font-family:var(--font-mono);font-size:.82rem">{{ f.cabin or '–' }}</td>
+            <td style="color:var(--gray-500);font-size:.82rem">{{ f.email }}</td>
+            <td>
+              {% set st = f.effective_status %}
+              {% if st == 'Free' %}<span class="badge badge-free">Free</span>
+              {% elif st == 'Busy' %}<span class="badge badge-busy">Busy</span>
+              {% elif st == 'In Class' %}<span class="badge badge-inclass">In Class</span>
+              {% elif st == 'On Leave' %}<span class="badge badge-onleave">On Leave</span>
+              {% else %}<span class="badge badge-free">Free</span>{% endif %}
+            </td>
+            <td>
+              <div class="action-btns">
+                <a href="{{ url_for('manage_timetable', fid=f.id) }}" class="btn btn-secondary btn-sm" title="Manage Timetable">
+                  <i class="fa fa-calendar"></i>
+                </a>
+                <a href="{{ url_for('edit_faculty', fid=f.id) }}" class="btn btn-outline btn-sm" title="Edit Faculty">
+                  <i class="fa fa-pen"></i>
+                </a>
+                <button class="btn btn-danger btn-sm" onclick="deleteFaculty({{ f.id }}, '{{ f.name }}')" title="Delete">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--gray-400)">No faculty members yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:.8rem">⚠️</div>
+    <div class="modal-title">Delete Faculty Member?</div>
+    <p id="deleteMsg" style="color:var(--gray-500);font-size:.9rem;margin-bottom:1.5rem"></p>
+    <div class="flex gap-3">
+      <button class="btn btn-secondary btn-full" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger btn-full" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Search
+document.getElementById('adminSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#adminTable tbody tr[data-name]').forEach(r => {
+    r.style.display = r.dataset.name.includes(q) ? '' : 'none';
+  });
+});
+
+// Delete
+let deleteId = null;
+function deleteFaculty(id, name) {
+  deleteId = id;
+  document.getElementById('deleteMsg').textContent = `This will permanently remove ${name} and their timetable.`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+}
+document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+  if (!deleteId) return;
+  fetch(`/admin/faculty/delete/${deleteId}`, {method:'POST'})
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) { showToast('Faculty deleted', 'success'); setTimeout(() => location.reload(), 800); }
+      else showToast('Error deleting faculty', 'error');
+      closeDeleteModal();
+    });
+});
+</script>
+{% endblock %}

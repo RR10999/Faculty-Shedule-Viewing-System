@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}{{ faculty.name }} – Timetable{% endblock %}
+{% block content %}
+
+<div class="detail-header">
+  <a href="javascript:history.back()" class="back-btn"><i class="fa fa-arrow-left"></i> Back</a>
+  <h1>{{ faculty.name }}</h1>
+  <div class="meta">
+    {{ faculty.designation or 'Assistant Professor' }} &nbsp;·&nbsp; Dept. of {{ faculty.dept_short or faculty.department or 'CSE' }}
+    {% if faculty.cabin %} &nbsp;·&nbsp; <i class="fa fa-location-dot"></i> {{ faculty.cabin }}{% endif %}
+  </div>
+  <div class="detail-status-row">
+    <span>Current Status:</span>
+    {% if effective_status == 'Free' %}<span class="badge badge-free">Free</span>
+    {% elif effective_status == 'Busy' %}<span class="badge badge-busy">Busy</span>
+    {% elif effective_status == 'In Class' %}<span class="badge badge-inclass">In Class</span>
+    {% elif effective_status == 'On Leave' %}<span class="badge badge-onleave">On Leave</span>
+    {% else %}<span class="badge badge-free">Free</span>{% endif %}
+    {% if faculty.leave_comment %}
+    <span style="font-size:.82rem;opacity:.85;background:rgba(255,255,255,.15);padding:.2rem .7rem;border-radius:50px">
+      <i class="fa fa-comment"></i> {{ faculty.leave_comment }}
+    </span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="page">
+  {% if role == 'faculty' and session.get('user_id') == faculty.id %}
+  <div class="flex gap-3 mb-4">
+    <a href="{{ url_for('update_status') }}" class="btn btn-primary btn-sm">
+      <i class="fa fa-pen-to-square"></i> Update My Status
+    </a>
+  </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-bottom:1.2rem">
+    <div class="section-title" style="font-size:1.15rem">Timetable</div>
+    <div style="font-size:.82rem;color:var(--gray-500);margin-top:.3rem">
+      {{ now.strftime('%A, %B %d %Y') }} &nbsp;·&nbsp; {{ now.strftime('%I:%M %p') }}
+    </div>
+  </div>
+
+  <!-- 
+    Layout: Days = ROWS (Day 1–5 down the left)
+            Time Slots = COLUMNS (Slot 1–12 across the top)
+    This matches the college timetable format exactly.
+  -->
+  <div class="timetable-wrapper">
+    <table class="timetable" style="min-width:1100px">
+      <thead>
+        <!-- Row 1: FROM times -->
+        <tr>
+          <th rowspan="2" style="background:var(--gray-800);min-width:100px;vertical-align:middle;font-size:.8rem">
+            Day / Slot
+          </th>
+          {% for slot in time_slots %}
+          <th style="background:#FECACA;color:#991B1B;font-size:.7rem;font-weight:600;padding:.4rem .3rem;text-align:center;min-width:90px">
+            {{ slot.label.split('–')[0].strip() }}<br>
+            <span style="opacity:.7">–</span><br>
+            {{ slot.label.split('–')[1].strip() }}
+          </th>
+          {% endfor %}
+        </tr>
+        <!-- Row 2: Slot numbers -->
+        <tr>
+          {% for slot in time_slots %}
+          <th style="background:#FDE68A;color:#92400E;font-size:.82rem;font-weight:700;padding:.4rem .3rem;text-align:center">
+            {{ slot.id }}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in range(1, 6) %}
+        <tr>
+          <!-- Day label -->
+          <td style="background:#FEF3C7;font-weight:700;font-size:.85rem;color:#92400E;text-align:center;padding:.6rem .4rem;white-space:nowrap">
+            Day {{ d }}<br>
+            <span style="font-size:.7rem;font-weight:400;color:#B45309">{{ days[d-1][:3] }}
+            {% if d == current_day %}<br><span style="background:#D97706;color:white;padding:.1rem .4rem;border-radius:50px;font-size:.65rem">Today</span>{% endif %}
+            </span>
+          </td>
+          {% for slot in time_slots %}
+          {% set cell = timetable.get((d, slot.id)) %}
+          <td style="padding:.3rem;{% if d == current_day %}background:rgba(37,99,235,.04);{% endif %}">
+            {% if cell and cell.subject == 'LUNCH' %}
+              <!-- Lunch = Busy (Red) -->
+              <div style="background:#FEE2E2;color:#DC2626;font-weight:700;border-radius:6px;padding:.4rem .3rem;font-size:.75rem;text-align:center;border:1px solid #FECACA">
+                Busy
+              </div>
+            {% elif cell and cell.subject %}
+              <!-- Has class = In Class (Blue) -->
+              <div style="background:#DBEAFE;color:#1D4ED8;font-weight:700;border-radius:6px;padding:.4rem .3rem;font-size:.75rem;text-align:center;border:1px solid #BFDBFE">
+                In Class
+              </div>
+            {% else %}
+              <!-- Free = Green + Cabin -->
+              <div style="background:#DCFCE7;color:#15803D;font-weight:600;border-radius:6px;padding:.4rem .3rem;font-size:.72rem;text-align:center;border:1px solid #BBF7D0">
+                <div>Free</div>
+                <div style="font-size:.65rem;font-weight:500;opacity:.85;margin-top:.15rem">
+                  <i class="fa fa-location-dot" style="font-size:.6rem"></i> {{ faculty.cabin or 'N/A' }}
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
