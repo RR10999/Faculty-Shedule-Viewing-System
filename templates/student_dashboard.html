@@ -1,23 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Faculty Directory{% endblock %}
+{% block title %}Student Dashboard – Faculty Schedule Viewing System{% endblock %}
 {% block content %}
 
 <div class="page-header">
   <div>
-    <h1>{% if view_others %}Faculty Directory{% elif role == 'faculty' %}Faculty Directory{% else %}Student Dashboard{% endif %}</h1>
-    <div class="subtitle">
-      {% if role == 'faculty' and not view_others %}Welcome, {{ name }}{% else %}Find faculty members and check availability{% endif %}
-    </div>
+    <!-- #6: Removed subtitle "Find faculty members and check availability" -->
+    <h1>{% if view_others %}Faculty Directory{% else %}Student Dashboard{% endif %}</h1>
   </div>
+  <!-- #2 & #7: Date+Time top-right with live seconds -->
   <div class="date-badge">
     <div style="font-size:.9rem;font-weight:700">{{ now.strftime('%A') }}</div>
     <div style="font-size:.78rem;opacity:.85">{{ now.strftime('%B %d, %Y') }}</div>
-    <div style="font-size:.8rem;opacity:.9;margin-top:.15rem"><i class="fa fa-clock"></i> {{ now.strftime('%I:%M %p') }}</div>
+    <div class="live-clock-wrap"><i class="fa fa-clock"></i><span class="live-time">{{ now.strftime('%I:%M:%S %p') }}</span></div>
   </div>
 </div>
 
 <div class="page">
-  <!-- Search + Filter bar -->
   <div class="flex gap-3 items-center mb-4" style="flex-wrap:wrap">
     <div class="search-wrap">
       <i class="fa fa-magnifying-glass search-icon"></i>
@@ -32,17 +30,25 @@
     </select>
   </div>
 
-  <!-- Faculty grid -->
+  <!-- #16: Already sorted alphabetically from app.py ORDER BY name ASC -->
   <div class="faculty-grid" id="facultyGrid">
     {% for f in faculties %}
     {% set st = f.effective_status %}
+    <!-- #8: Fixed initials — use first letter of first name + first letter of last name -->
+    {% set parts = f.name.split() %}
+    {% set initials = '' %}
+    {% for p in parts %}
+      {% if loop.index == 1 or loop.last %}
+        {% set initials = initials + p[0].upper() %}
+      {% endif %}
+    {% endfor %}
     <a href="{{ url_for('faculty_detail', faculty_id=f.id) }}"
        class="faculty-card"
        data-name="{{ f.name|lower }}"
        data-dept="{{ (f.department or '')|lower }}"
        data-cabin="{{ (f.cabin or '')|lower }}"
        data-status="{{ st }}">
-      <div class="faculty-avatar">{{ f.name[0].upper() }}{{ f.name.split(' ')[-1][0].upper() if f.name.split()|length > 1 else '' }}</div>
+      <div class="faculty-avatar">{{ initials[:2] }}</div>
       <div class="faculty-info">
         <div class="faculty-name">{{ f.name }}</div>
         <div class="faculty-dept" style="font-size:.78rem;color:var(--gray-600);font-weight:500">{{ f.designation or 'Assistant Professor' }}</div>
@@ -65,7 +71,6 @@
     </div>
     {% endfor %}
   </div>
-
   <div id="noResults" class="empty-state" style="display:none">
     <div class="icon">🔍</div>
     <p>No faculty found matching your search</p>
@@ -85,23 +90,20 @@
 <script>
 const search = document.getElementById('searchInput');
 const filter = document.getElementById('statusFilter');
-const cards = document.querySelectorAll('.faculty-card');
-const noRes = document.getElementById('noResults');
-
-function filterCards() {
+const cards  = document.querySelectorAll('.faculty-card');
+const noRes  = document.getElementById('noResults');
+function filterCards(){
   const q = search.value.toLowerCase();
   const s = filter.value;
-  let visible = 0;
-  cards.forEach(c => {
-    const matchQ = !q || c.dataset.name.includes(q) || c.dataset.dept.includes(q) || c.dataset.cabin.includes(q);
-    const matchS = !s || c.dataset.status === s;
-    c.style.display = matchQ && matchS ? '' : 'none';
-    if (matchQ && matchS) visible++;
+  let v = 0;
+  cards.forEach(c=>{
+    const ok = (!q||c.dataset.name.includes(q)||c.dataset.dept.includes(q)||c.dataset.cabin.includes(q))&&(!s||c.dataset.status===s);
+    c.style.display = ok?'':'none';
+    if(ok) v++;
   });
-  noRes.style.display = visible === 0 ? 'block' : 'none';
+  noRes.style.display = v===0?'block':'none';
 }
-
-search.addEventListener('input', filterCards);
-filter.addEventListener('change', filterCards);
+search.addEventListener('input',filterCards);
+filter.addEventListener('change',filterCards);
 </script>
 {% endblock %}

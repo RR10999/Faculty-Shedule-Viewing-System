@@ -7,6 +7,13 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'faculty_schedule_secret_2025'
 
+
+@app.context_processor
+def inject_session():
+    from flask import session as _session
+    return dict(session=_session)
+
+
 # ── UPDATE YOUR MYSQL PASSWORD HERE ────────────────────────────────────────────
 DB_CONFIG = {
     'host': 'localhost',

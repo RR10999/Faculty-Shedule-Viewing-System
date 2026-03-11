@@ -3,22 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Faculty Schedule System{% endblock %}</title>
+  <title>{% block title %}Faculty Schedule Viewing System{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* #1: Hide the FS logo box entirely */
+    .topbar-brand { display: none !important; }
+
+    /* #3: Fixed-width clock container so seconds don't cause layout shift */
+    .live-clock-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .8rem;
+      opacity: .92;
+      margin-top: .15rem;
+      min-width: 100px;   /* fixed width so layout never shifts */
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .01em;
+    }
+    .live-clock-wrap i {
+      flex-shrink: 0;
+      font-size: .78rem;
+    }
+    .live-time {
+      font-variant-numeric: tabular-nums;
+      display: inline-block;
+      min-width: 88px;   /* wide enough for "12:59:59 PM" */
+      text-align: left;
+    }
+  </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
 {% block navbar %}
-<nav class="topbar">
-  <div class="topbar-brand">
-    <div class="logo-icon">FS</div>
-    <span>Faculty Schedule</span>
-  </div>
+<nav class="topbar" style="justify-content:flex-end">
   {% if session.get('role') %}
   <div class="topbar-right">
+    <!-- #2: Show 2-letter initials in avatar (first + last name) -->
+    {% set parts = session.get('name','U').split() %}
+    {% set av = '' %}
+    {% for p in parts %}{% if loop.index==1 or loop.last %}{% set av = av + p[0].upper() %}{% endif %}{% endfor %}
     <div class="user-pill">
-      <div class="avatar">{{ session.get('name','U')[0].upper() }}</div>
+      <div class="avatar" style="font-size:.65rem;letter-spacing:-.5px">{{ av[:2] }}</div>
       <span>{{ session.get('name','') }}</span>
     </div>
     <a href="{{ url_for('logout') }}">
@@ -31,7 +58,23 @@
 {% block content %}{% endblock %}
 <div class="toast" id="toast"></div>
 <script>
-function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',2800);}
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',2800);
+}
+// Live clock — tabular numbers prevent layout jitter (#3)
+function updateClock(){
+  const now=new Date();
+  const h=now.getHours()%12||12;
+  const m=String(now.getMinutes()).padStart(2,'0');
+  const s=String(now.getSeconds()).padStart(2,'0');
+  const ap=now.getHours()>=12?'PM':'AM';
+  const str=`${String(h).padStart(2,'0')}:${m}:${s} ${ap}`;
+  document.querySelectorAll('.live-time').forEach(el=>el.textContent=str);
+}
+setInterval(updateClock,1000);
+updateClock();
 </script>
 {% block extra_scripts %}{% endblock %}
 </body>

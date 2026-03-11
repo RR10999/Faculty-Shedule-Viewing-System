@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Faculty Dashboard{% endblock %}
+{% block title %}Faculty Dashboard – Faculty Schedule Viewing System{% endblock %}
 {% block content %}
 
 <div class="page-header">
@@ -7,19 +7,17 @@
     <h1>Faculty Dashboard</h1>
     <div class="subtitle">Welcome, {{ faculty.name }}</div>
   </div>
-  <div style="text-align:right">
-    <div class="date-badge" style="margin-bottom:.5rem">
+  <!-- #2 & #7: Clock top-right -->
+  <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div class="date-badge">
       <div style="font-size:.9rem;font-weight:700">{{ now.strftime("%A") }}</div>
       <div style="font-size:.78rem;opacity:.85">{{ now.strftime("%B %d, %Y") }}</div>
-      <div style="font-size:.8rem;opacity:.9;margin-top:.15rem"><i class="fa fa-clock"></i> {{ now.strftime("%I:%M %p") }}</div>
+      <div class="live-clock-wrap"><i class="fa fa-clock"></i><span class="live-time">{{ now.strftime("%I:%M:%S %p") }}</span></div>
     </div>
     {% if effective_status == 'Free' %}<span class="badge badge-free" style="font-size:.88rem;padding:.35rem .9rem">Free</span>
     {% elif effective_status == 'Busy' %}<span class="badge badge-busy" style="font-size:.88rem;padding:.35rem .9rem">Busy</span>
     {% elif effective_status == 'In Class' %}<span class="badge badge-inclass" style="font-size:.88rem;padding:.35rem .9rem">In Class</span>
     {% elif effective_status == 'On Leave' %}<span class="badge badge-onleave" style="font-size:.88rem;padding:.35rem .9rem">On Leave</span>
-    {% endif %}
-    {% if faculty.leave_comment %}
-    <div style="font-size:.78rem;color:rgba(255,255,255,.8);margin-top:.4rem">{{ faculty.leave_comment }}</div>
     {% endif %}
   </div>
 </div>
@@ -28,13 +26,14 @@
   <div class="card mb-4">
     <div style="display:flex;align-items:center;gap:1rem">
       <div style="width:50px;height:50px;background:var(--blue-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--blue);flex-shrink:0">
-        {{ faculty.name[0].upper() }}
+        {% set parts = faculty.name.split() %}{% set initials = '' %}{% for p in parts %}{% if loop.index==1 or loop.last %}{% set initials = initials + p[0].upper() %}{% endif %}{% endfor %}{{ initials[:2] }}
       </div>
       <div>
         <div style="font-weight:700;font-size:1.05rem">{{ faculty.name }}</div>
-        <div style="font-size:.85rem;color:var(--gray-500)">{{ faculty.department or '' }}</div>
+        <div style="font-size:.85rem;color:var(--gray-600);font-weight:500">{{ faculty.designation or 'Assistant Professor' }}</div>
+        <div style="font-size:.8rem;color:var(--gray-500)">Dept. of {{ faculty.dept_short or faculty.department or 'CSE' }}</div>
         {% if faculty.cabin %}
-        <div style="font-size:.78rem;color:var(--gray-400);margin-top:.2rem"><i class="fa fa-location-dot"></i> Cabin {{ faculty.cabin }}</div>
+        <div style="font-size:.78rem;color:var(--gray-400);margin-top:.2rem"><i class="fa fa-location-dot"></i> {{ faculty.cabin }}</div>
         {% endif %}
       </div>
     </div>
@@ -54,16 +53,16 @@
       <div class="menu-item-icon icon-green"><i class="fa fa-calendar-days"></i></div>
       <div class="menu-item-text">
         <h3>View Timetable</h3>
-        <p>See your full weekly schedule</p>
+        <p>See your full weekly schedule with subjects</p>
       </div>
       <i class="fa fa-chevron-right menu-arrow"></i>
     </a>
 
+    <!-- #9: Removed subtitle from this option -->
     <a href="{{ url_for('faculty_view_others') }}" class="menu-item">
       <div class="menu-item-icon icon-orange"><i class="fa fa-users"></i></div>
       <div class="menu-item-text">
         <h3>View Other Faculty Schedule</h3>
-        <p>Check availability of other faculty members</p>
       </div>
       <i class="fa fa-chevron-right menu-arrow"></i>
     </a>

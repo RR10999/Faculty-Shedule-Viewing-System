@@ -7,18 +7,14 @@
     <h1>Manage Timetable</h1>
     <div class="subtitle">{{ faculty.name }} &nbsp;·&nbsp; {{ faculty.department or '' }}</div>
   </div>
+  <!-- #1: date badge right side -->
   <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)">
     <i class="fa fa-arrow-left"></i> Back
   </a>
 </div>
 
 <div class="page">
-  <div class="card mb-3" style="background:var(--blue-light);border-color:var(--blue-mid)">
-    <div style="font-size:.85rem;color:var(--blue-dark)">
-      <i class="fa fa-circle-info"></i>
-      Enter subject codes (e.g. CS301) in the subject row. Enter room numbers (e.g. NLH-301) in the room row below it. Leave blank for free slots.
-    </div>
-  </div>
+  <!-- #6: Info box REMOVED entirely -->
 
   <form method="POST">
     <div class="timetable-wrapper">
