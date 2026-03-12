@@ -375,7 +375,6 @@ def manage_timetable(fid):
                             cur.execute("INSERT INTO timetable (faculty_id, day_order, slot_number, subject, room) VALUES (%s,%s,%s,%s,%s)",
                                         (fid, day, slot, subject, room))
                 conn.commit()
-                conn.close()
                 return redirect(url_for('admin_dashboard'))
             cur.execute("SELECT * FROM timetable WHERE faculty_id=%s", (fid,))
             rows = cur.fetchall()

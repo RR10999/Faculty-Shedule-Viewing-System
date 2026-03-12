@@ -48,7 +48,7 @@
 {% block content %}
 
 <div class="detail-header">
-  <a href="javascript:history.back()" class="back-btn"><i class="fa fa-arrow-left"></i> Back</a>
+  <a href="javascript:history.back()" class="back-btn"><i class="fa fa-arrow-left"></i> Back to Dashboard</a>
   <!-- #1: flex row, date-badge forced right -->
   <div class="detail-header-inner">
     <div>
@@ -123,33 +123,46 @@
           {% set cell = timetable.get((d, slot.id)) %}
           <td class="td-cell" style="{% if d == current_day %}background:rgba(37,99,235,.03){% endif %}">
             {% if cell and cell.subject == 'LUNCH' %}
-              <div class="c-busy">Busy</div>
+              {% if is_own %}
+                <!-- Own: lunch shown as Busy -->
+                <div class="c-busy">Busy</div>
+              {% else %}
+                <!-- Others: lunch = Busy (no cabin, they're not free) -->
+                <div class="c-busy">Busy</div>
+              {% endif %}
 
             {% elif cell and cell.subject %}
               {% if is_own %}
-                <!-- #3: Own timetable — NO "In Class" label, just subject + room -->
+                <!-- Own timetable: subject name + room, no "In Class" label -->
                 <div class="c-own">
                   <div style="font-weight:700">{{ cell.subject }}</div>
                   {% if cell.room %}<div style="font-size:.58rem;opacity:.75;margin-top:.1rem">{{ cell.room }}</div>{% endif %}
                 </div>
               {% else %}
-                <!-- #4: Others — "In Class | cabin" -->
+                <!-- #4: Others — "In Class" only, no cabin (cabin is only for free slots) -->
                 <div class="c-other">
-                  <div>In Class</div>
-                  <div style="font-size:.58rem;opacity:.75;margin-top:.1rem">
-                    <i class="fa fa-location-dot" style="font-size:.52rem"></i> {{ faculty.cabin or 'N/A' }}
-                  </div>
+                  <div style="font-weight:700">In Class</div>
                 </div>
               {% endif %}
 
             {% else %}
-              <!-- Free: show cabin -->
-              <div class="c-free">
-                Free<br>
-                <span style="font-size:.58rem;opacity:.8">
-                  <i class="fa fa-location-dot" style="font-size:.52rem"></i> {{ faculty.cabin or 'N/A' }}
-                </span>
-              </div>
+              {% if is_own %}
+                <!-- Own free slot: cabin -->
+                <div class="c-free">
+                  Free<br>
+                  <span style="font-size:.58rem;opacity:.8">
+                    <i class="fa fa-location-dot" style="font-size:.52rem"></i> {{ faculty.cabin or 'N/A' }}
+                  </span>
+                </div>
+              {% else %}
+                <!-- #4: Others free slot: Free + cabin (so students/faculty know where to find them) -->
+                <div class="c-free">
+                  Free<br>
+                  <span style="font-size:.58rem;opacity:.8">
+                    <i class="fa fa-location-dot" style="font-size:.52rem"></i> {{ faculty.cabin or 'N/A' }}
+                  </span>
+                </div>
+              {% endif %}
             {% endif %}
           </td>
           {% endfor %}

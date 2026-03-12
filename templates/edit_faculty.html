@@ -6,8 +6,9 @@
     <h1>Edit Faculty</h1>
     <div class="subtitle">Update faculty information</div>
   </div>
-  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)">
-    <i class="fa fa-arrow-left"></i> Back
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary"
+    style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)">
+    <i class="fa fa-arrow-left"></i> Back to Dashboard
   </a>
 </div>
 <div class="page-sm">
@@ -22,15 +23,18 @@
         <input class="form-input" type="email" name="email" value="{{ faculty.email }}" required>
       </div>
       <div class="form-group">
-        <label class="form-label">New Password <span style="color:var(--gray-400);font-weight:400">(leave blank to keep current)</span></label>
+        <label class="form-label">New Password <span style="color:var(--gray-400);font-weight:400">(leave blank to keep
+            current)</span></label>
         <input class="form-input" type="password" name="password" placeholder="Enter new password">
       </div>
       <div class="form-group">
         <label class="form-label">Designation</label>
         <select class="form-select" name="designation">
-          <option value="Assistant Professor" {% if faculty.designation == 'Assistant Professor' %}selected{% endif %}>Assistant Professor</option>
-          <option value="Associate Professor" {% if faculty.designation == 'Associate Professor' %}selected{% endif %}>Associate Professor</option>
-          <option value="Professor" {% if faculty.designation == 'Professor' %}selected{% endif %}>Professor</option>
+          <option value="Assistant Professor" {% if faculty.designation=='Assistant Professor' %}selected{% endif %}>
+            Assistant Professor</option>
+          <option value="Associate Professor" {% if faculty.designation=='Associate Professor' %}selected{% endif %}>
+            Associate Professor</option>
+          <option value="Professor" {% if faculty.designation=='Professor' %}selected{% endif %}>Professor</option>
         </select>
       </div>
       <div class="form-group">
@@ -40,16 +44,18 @@
       <div class="form-group">
         <label class="form-label">Department Short Code</label>
         <select class="form-select" name="dept_short">
-          <option value="CSE" {% if faculty.dept_short == 'CSE' %}selected{% endif %}>CSE – Computer Science & Engineering</option>
-          <option value="NWC" {% if faculty.dept_short == 'NWC' %}selected{% endif %}>NWC – Network & Communications</option>
-          <option value="CYS" {% if faculty.dept_short == 'CYS' %}selected{% endif %}>CYS – Cyber Security</option>
-          <option value="IT"  {% if faculty.dept_short == 'IT'  %}selected{% endif %}>IT – Information Technology</option>
-          <option value="AIDS"{% if faculty.dept_short == 'AIDS'%}selected{% endif %}>AIDS – AI & Data Science</option>
+          <option value="CINTEL" {% if faculty.dept_short=='CINTEL' %}selected{% endif %}>CINTEL – Computational
+            Intelligence</option>
+          <option value="CTECH" {% if faculty.dept_short=='CTECH' %}selected{% endif %}>CTECH – Computing Technologies
+          </option>
+          <option value="NWC" {% if faculty.dept_short=='NWC' %}selected{% endif %}>NWC – Network & Communications
+          </option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">Cabin Number</label>
-        <input class="form-input" name="cabin" value="{{ faculty.cabin or '' }}" placeholder="e.g. TP - 204 or TP2 - 906 or UB - 107">
+        <input class="form-input" name="cabin" value="{{ faculty.cabin or '' }}"
+          placeholder="e.g. TP - 204 or TP2 - 906 or UB - 107">
       </div>
       <div class="flex gap-3 mt-4">
         <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary" style="flex:1">Cancel</a>

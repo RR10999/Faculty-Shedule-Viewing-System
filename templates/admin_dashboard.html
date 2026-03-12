@@ -69,20 +69,10 @@
         <tbody>
           {% for f in faculties %}
           <!-- #14: Fixed 2-letter initials same as student dashboard -->
-          {% set ns = namespace(initials='') %}
-          {% for p in f.name.split() %}
-            {% if loop.first or loop.last %}{% set ns.initials = ns.initials + p[0].upper() %}{% endif %}
-          {% endfor %}
-          {% set initials = ns.initials %}
           <tr data-name="{{ f.name|lower }}">
             <td style="color:var(--gray-400);font-size:.8rem">{{ loop.index }}</td>
             <td>
-              <div style="display:flex;align-items:center;gap:.7rem">
-                <div style="width:34px;height:34px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);font-size:.78rem;flex-shrink:0">
-                  {{ initials[:2] }}
-                </div>
-                <span style="font-weight:600">{{ f.name }}</span>
-              </div>
+              <div><span style="font-weight:600">{{ f.name }}</span></div>
             </td>
             <td>
               <div style="font-size:.85rem;font-weight:500;color:var(--gray-700)">{{ f.designation or 'Assistant Professor' }}</div>

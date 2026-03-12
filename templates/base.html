@@ -7,30 +7,39 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    /* #1: Hide the FS logo box entirely */
+    /* #1: Remove FS logo entirely */
     .topbar-brand { display: none !important; }
 
-    /* #3: Fixed-width clock container so seconds don't cause layout shift */
+    /* Clock: fixed-width, tabular digits, no layout shift */
     .live-clock-wrap {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: .35rem;
+      justify-content: flex-end;
+      gap: .3rem;
       font-size: .8rem;
       opacity: .92;
       margin-top: .15rem;
-      min-width: 100px;   /* fixed width so layout never shifts */
       font-variant-numeric: tabular-nums;
-      letter-spacing: .01em;
+      font-family: 'DM Mono', 'Courier New', monospace;
     }
-    .live-clock-wrap i {
-      flex-shrink: 0;
-      font-size: .78rem;
-    }
+    .live-clock-wrap i { flex-shrink: 0; font-size: .75rem; width: 14px; text-align: center; }
     .live-time {
       font-variant-numeric: tabular-nums;
       display: inline-block;
-      min-width: 88px;   /* wide enough for "12:59:59 PM" */
-      text-align: left;
+      min-width: 90px;
+      text-align: right;
+      letter-spacing: .02em;
+    }
+
+    /* #1: date-badge always right-aligned, never left */
+    .date-badge {
+      text-align: right !important;
+    }
+    /* Make page-header always push date to far right */
+    .page-header {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
     }
   </style>
   {% block extra_head %}{% endblock %}
@@ -40,13 +49,22 @@
 <nav class="topbar" style="justify-content:flex-end">
   {% if session.get('role') %}
   <div class="topbar-right">
-    <!-- #2: Show 2-letter initials in avatar (first + last name) -->
-    {% set parts = session.get('name','U').split() %}
-    {% set av = '' %}
-    {% for p in parts %}{% if loop.index==1 or loop.last %}{% set av = av + p[0].upper() %}{% endif %}{% endfor %}
+    <!-- #2 & #5: Smart initials for all roles -->
+    {% set uname = session.get('name','U') %}
+    {% if session.get('role') == 'admin' %}
+      {% set av = 'A' %}
+    {% else %}
+      {% set _bns = namespace(av='') %}
+      {% for _bp in uname.split() %}
+        {% if not _bp.lower().startswith('dr') and not _bp.lower().startswith('mr') and not _bp.lower().startswith('ms') %}
+          {% if _bns.av|length < 2 %}{% set _bns.av = _bns.av + _bp[0].upper() %}{% endif %}
+        {% endif %}
+      {% endfor %}
+      {% set av = _bns.av if _bns.av|length > 0 else uname[0].upper() %}
+    {% endif %}
     <div class="user-pill">
       <div class="avatar" style="font-size:.65rem;letter-spacing:-.5px">{{ av[:2] }}</div>
-      <span>{{ session.get('name','') }}</span>
+      <span>{{ uname }}</span>
     </div>
     <a href="{{ url_for('logout') }}">
       <button class="btn-logout"><i class="fa fa-sign-out-alt"></i> Logout</button>
@@ -60,10 +78,9 @@
 <script>
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+type;
+  t.textContent=msg; t.className='toast show '+type;
   setTimeout(()=>t.className='toast',2800);
 }
-// Live clock — tabular numbers prevent layout jitter (#3)
 function updateClock(){
   const now=new Date();
   const h=now.getHours()%12||12;

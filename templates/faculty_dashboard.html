@@ -24,18 +24,13 @@
 
 <div class="page-sm">
   <div class="card mb-4">
-    <div style="display:flex;align-items:center;gap:1rem">
-      <div style="width:50px;height:50px;background:var(--blue-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--blue);flex-shrink:0">
-        {% set parts = faculty.name.split() %}{% set initials = '' %}{% for p in parts %}{% if loop.index==1 or loop.last %}{% set initials = initials + p[0].upper() %}{% endif %}{% endfor %}{{ initials[:2] }}
-      </div>
-      <div>
-        <div style="font-weight:700;font-size:1.05rem">{{ faculty.name }}</div>
+    <div>
+      <div style="font-weight:700;font-size:1.05rem">{{ faculty.name }}</div>
         <div style="font-size:.85rem;color:var(--gray-600);font-weight:500">{{ faculty.designation or 'Assistant Professor' }}</div>
         <div style="font-size:.8rem;color:var(--gray-500)">Dept. of {{ faculty.dept_short or faculty.department or 'CSE' }}</div>
         {% if faculty.cabin %}
         <div style="font-size:.78rem;color:var(--gray-400);margin-top:.2rem"><i class="fa fa-location-dot"></i> {{ faculty.cabin }}</div>
-        {% endif %}
-      </div>
+      {% endif %}
     </div>
   </div>
 

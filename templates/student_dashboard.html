@@ -4,7 +4,11 @@
 
 <div class="page-header">
   <div>
-    <!-- #6: Removed subtitle "Find faculty members and check availability" -->
+    {% if role == 'faculty' %}
+    <a href="{{ url_for('faculty_dashboard') }}" class="back-btn" style="display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.5rem;font-size:.82rem;opacity:.85">
+      <i class="fa fa-arrow-left"></i> Back to Dashboard
+    </a>
+    {% endif %}
     <h1>{% if view_others %}Faculty Directory{% else %}Student Dashboard{% endif %}</h1>
   </div>
   <!-- #2 & #7: Date+Time top-right with live seconds -->
@@ -35,20 +39,12 @@
     {% for f in faculties %}
     {% set st = f.effective_status %}
     <!-- #8: Fixed initials — use first letter of first name + first letter of last name -->
-    {% set parts = f.name.split() %}
-    {% set initials = '' %}
-    {% for p in parts %}
-      {% if loop.index == 1 or loop.last %}
-        {% set initials = initials + p[0].upper() %}
-      {% endif %}
-    {% endfor %}
     <a href="{{ url_for('faculty_detail', faculty_id=f.id) }}"
        class="faculty-card"
        data-name="{{ f.name|lower }}"
        data-dept="{{ (f.department or '')|lower }}"
        data-cabin="{{ (f.cabin or '')|lower }}"
        data-status="{{ st }}">
-      <div class="faculty-avatar">{{ initials[:2] }}</div>
       <div class="faculty-info">
         <div class="faculty-name">{{ f.name }}</div>
         <div class="faculty-dept" style="font-size:.78rem;color:var(--gray-600);font-weight:500">{{ f.designation or 'Assistant Professor' }}</div>
@@ -77,13 +73,7 @@
   </div>
 </div>
 
-{% if role == 'faculty' %}
-<div style="position:fixed;bottom:1.5rem;left:1.5rem">
-  <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-primary">
-    <i class="fa fa-arrow-left"></i> Back to Dashboard
-  </a>
-</div>
-{% endif %}
+
 {% endblock %}
 
 {% block extra_scripts %}
