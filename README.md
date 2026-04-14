@@ -2,7 +2,7 @@
 
 A web-based application that allows students and staff to view real-time faculty availability based on timetable data.
 
-Developed for SRM IST as part of Lab Assessment, the system provides an easy way to check whether a faculty member is **Free, Busy, In Class, or On Leave**, helping students find available faculty without unnecessary waiting.
+Developed as part of Lab Assessment, the system provides an easy way to check whether a faculty member is **Free, Busy, In Class, or On Leave**, helping students find available faculty without unnecessary waiting.
 
 ---
 
